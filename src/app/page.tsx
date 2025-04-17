@@ -1,103 +1,516 @@
-import Image from "next/image";
+'use client';
+
+import Link from 'next/link';
+import Hero from '../../components/sections/Hero';
+import ProductGrid from "../../components/sections/ProductGrid";
+import Button from "../../components/ui/Button";
+import { getFeaturedProducts } from "../../lib/dummyData";
+import { useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { AnimatedSection } from '@/components/ui/animated-section';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // Force scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // Add performance optimization for smoother animations
+    // Pre-load and optimize critical animations
+    const body = document.querySelector('body');
+    if (body) {
+      // Add a class to indicate we're on the home page (for CSS optimizations)
+      body.classList.add('home-page');
+      
+      // Optimize rendering performance
+      return () => body.classList.remove('home-page');
+    }
+  }, []);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ 
+          duration: 1.8,
+          ease: [0.22, 0.03, 0.26, 1.0]
+        }}
+      >
+        <Hero imagePath="/images/landing-page-bg.png" />
+      </motion.div>
+      
+      {/* Main content starts here - this is where we'll scroll to after animation */}
+      <div id="main-content">
+        {/* Embroidered Collection - Image Right */}
+        <AnimatedSection
+          as="section"
+          className="py-36 px-6 bg-gray-50 min-h-[90vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
+        >
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="order-2 md:order-1">
+                <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                  <motion.h2 
+                    className="text-5xl font-medium mb-8 text-white"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Embroidered Collection
+                  </motion.h2>
+                  <motion.div 
+                    className="w-32 h-1.5 bg-primary mb-10"
+                    initial={{ opacity: 0, width: 0 }}
+                    whileInView={{ opacity: 1, width: 128 }}
+                    transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  ></motion.div>
+                  <motion.p 
+                    className="text-xl mb-10 text-white leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Our Embroidered collection showcases the artistry of traditional craftsmanship
+                    with contemporary design. Meticulously hand-embroidered by skilled artisans,
+                    each piece features intricate patterns that transform premium fabrics into
+                    wearable works of art.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    <Button href="/embroidered" variant="primary">
+                      Explore Collection
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+              <div className="relative aspect-square w-full max-w-[400px] mx-auto overflow-hidden rounded-lg shadow-xl order-1 md:order-2">
+                <motion.div
+                  className="w-full h-full"
+                  initial={{ scale: 1.2 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <img
+                    src="/images/embroidered cover.png"
+                    alt="Embroidered Collection"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
+              </div>
+            </div>
+          </div>
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" 
+            style={{ backgroundImage: 'url("/images/embroidered.png")' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
+          />
+        </AnimatedSection>
+        
+        {/* Animex Collection - Image Left */}
+        <AnimatedSection
+          as="section"
+          className="py-36 px-6 bg-white min-h-[90vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
+        >
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="relative aspect-square w-full max-w-[400px] mx-auto overflow-hidden rounded-lg shadow-xl">
+                <motion.div
+                  className="w-full h-full"
+                  initial={{ scale: 1.2 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <img
+                    src="/images/zoro cover.png"
+                    alt="Animex Collection"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
+              </div>
+              <div>
+                <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                  <motion.h2 
+                    className="text-5xl font-medium mb-8 text-white"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Animex Collection
+                  </motion.h2>
+                  <motion.div 
+                    className="w-32 h-1.5 bg-accent mb-10"
+                    initial={{ opacity: 0, width: 0 }}
+                    whileInView={{ opacity: 1, width: 128 }}
+                    transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  ></motion.div>
+                  <motion.p 
+                    className="text-xl mb-10 text-white leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Our Animex collection brings a bold artistic vision to luxury fashion. 
+                    Featuring unique animal-inspired patterns and motifs, these pieces 
+                    combine striking visual elements with superior craftsmanship for 
+                    those who appreciate distinctive, statement-making design.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    <Button href="/animex" variant="accent">
+                      Explore Collection
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" 
+            style={{ backgroundImage: 'url("/images/anime bg.jpg")' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
+          />
+        </AnimatedSection>
+        
+        {/* Engine Heads Collection - Image Right */}
+        <AnimatedSection
+          as="section"
+          className="py-36 px-6 bg-gray-50 min-h-[90vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
+        >
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="order-2 md:order-1">
+                <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                  <motion.h2 
+                    className="text-5xl font-medium mb-8 text-white"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Engine Heads Collection
+                  </motion.h2>
+                  <motion.div 
+                    className="w-32 h-1.5 bg-primary mb-10"
+                    initial={{ opacity: 0, width: 0 }}
+                    whileInView={{ opacity: 1, width: 128 }}
+                    transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  ></motion.div>
+                  <motion.p 
+                    className="text-xl mb-10 text-white leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Our Engine Heads collection represents the pinnacle of luxury shirt craftsmanship. 
+                    Meticulously designed and tailored from premium fabrics, each piece offers 
+                    unparalleled comfort and sophisticated style for the modern connoisseur.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    <Button href="/engine-heads" variant="primary">
+                      Explore Collection
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+              <div className="relative aspect-square w-full max-w-[400px] mx-auto overflow-hidden rounded-lg shadow-xl order-1 md:order-2">
+                <motion.div
+                  className="w-full h-full"
+                  initial={{ scale: 1.2 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <img
+                    src="/images/engine heads cover.jpg"
+                    alt="Engine Heads Collection"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
+              </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" 
+            style={{ backgroundImage: 'url("/images/engine head background.png")' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        </AnimatedSection>
+        
+        {/* Structured Collection - Image Left */}
+        <AnimatedSection
+          as="section"
+          className="py-36 px-6 bg-white min-h-[90vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="relative aspect-square w-full max-w-[400px] mx-auto overflow-hidden rounded-lg shadow-xl">
+                <motion.div
+                  className="w-full h-full"
+                  initial={{ scale: 1.2 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <img
+                    src="/images/structured cover.png"
+                    alt="Structured Collection"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
+              </div>
+              <div>
+                <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                  <motion.h2 
+                    className="text-5xl font-medium mb-8 text-white"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Structured Collection
+                  </motion.h2>
+                  <motion.div 
+                    className="w-32 h-1.5 bg-accent mb-10"
+                    initial={{ opacity: 0, width: 0 }}
+                    whileInView={{ opacity: 1, width: 128 }}
+                    transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  ></motion.div>
+                  <motion.p 
+                    className="text-xl mb-10 text-white leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Our Structured collection features sharp silhouettes with modern cuts and 
+                    premium tailoring. Each garment is designed to create a refined, 
+                    architectural aesthetic that combines bold lines with flowing shapes for a 
+                    distinctly contemporary look.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    <Button href="/structured" variant="accent">
+                      Explore Collection
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" 
+            style={{ backgroundImage: 'url("/images/structured.png")' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        </AnimatedSection>
+        
+        {/* Limited Edition Collection - Image Right */}
+        <AnimatedSection
+          as="section"
+          className="py-36 px-6 bg-gray-50 min-h-[90vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="order-2 md:order-1">
+                <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                  <motion.h2 
+                    className="text-5xl font-medium mb-8 text-white"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Limited Edition
+                  </motion.h2>
+                  <motion.div 
+                    className="w-32 h-1.5 bg-primary mb-10"
+                    initial={{ opacity: 0, width: 0 }}
+                    whileInView={{ opacity: 1, width: 128 }}
+                    transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  ></motion.div>
+                  <motion.p 
+                    className="text-xl mb-10 text-white leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    Our Limited Edition collection features rare and exclusive designs crafted in small quantities.
+                    Each piece is uniquely numbered and represents the pinnacle of luxury craftsmanship,
+                    offering discerning customers a truly exclusive ownership experience that stands apart
+                    from mainstream fashion.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                    viewport={{ once: false, amount: 0.5 }}
+                  >
+                    <Button href="/limited-edition" variant="primary">
+                      Explore Collection
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+              <div className="relative aspect-square w-full max-w-[400px] mx-auto overflow-hidden rounded-lg shadow-xl order-1 md:order-2">
+                <motion.div
+                  className="w-full h-full"
+                  initial={{ scale: 1.2 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <img
+                    src="/images/Limited edition cover.png"
+                    alt="Limited Edition Collection"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
+              </div>
+            </div>
+          </div>
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" 
+            style={{ backgroundImage: 'url("/images/limited edition.png")' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </AnimatedSection>
+        
+        {/* Brand Story */}
+        <AnimatedSection
+          as="section"
+          className="py-40 px-6 bg-black text-white min-h-[80vh] flex items-center relative overflow-hidden"
+          animation="fade"
+          duration={0.8}
+          threshold={0.2}
+          once={false}
+        >
+          <div className="container mx-auto text-center max-w-5xl relative z-10">
+            <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm inline-block">
+              <motion.h2 
+                className="text-6xl font-medium mb-10"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+                viewport={{ once: false, amount: 0.5 }}
+              >
+                The Imperial Aura Story
+              </motion.h2>
+              <motion.div 
+                className="w-32 h-1.5 bg-accent mx-auto mb-12"
+                initial={{ opacity: 0, width: 0 }}
+                whileInView={{ opacity: 1, width: 128 }}
+                transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.2 }}
+                viewport={{ once: false, amount: 0.5 }}
+              ></motion.div>
+              <motion.p 
+                className="max-w-4xl mx-auto text-2xl mb-12 leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
+                viewport={{ once: false, amount: 0.5 }}
+              >
+                Born from a passion for exquisite craftsmanship and timeless design, Imperial Aura brings together 
+                the finest fabrics and meticulous attention to detail to create luxury clothing that transcends trends. 
+                Each piece is a celebration of elegance, individuality, and the pursuit of perfection.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.4 }}
+                viewport={{ once: false, amount: 0.5 }}
+              >
+                <Button href="/contact" variant="accent">
+                  Contact Us
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+          {/* Background image with animation */}
+          <motion.div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+            viewport={{ once: false, amount: 0.3, margin: "-10%" }}
+          />
+        </AnimatedSection>
     </div>
+    </>
   );
 }

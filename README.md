@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Imperial Aura Luxury Clothing Store
+
+Imperial Aura is a modern luxury clothing brand website with a purple/black theme, featuring a sticky navbar and a fully functional shopping cart system.
+
+## Features
+
+- **Modern Design**: Sleek purple and black color scheme with elegant typography
+- **Collection Landing Pages**: Dedicated pages for Engine Heads, Structured, Embroidered, Lowers, and Animex collections
+- **SEO Optimized**: Meta tags and structured data for improved search visibility
+- **Performance Focused**: Fast-loading images and optimized code
+- **Responsive Design**: Fully adaptable to desktop, tablet, and mobile devices
+- **Shopping Cart**: Persistent cart with localStorage for saving items
+
+## Technical Implementation
+
+- Built with **Next.js 15** and **React 19**
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- Modular architecture with reusable components
+- Client-side state management for cart functionality
+- Incremental Static Regeneration (ISR) for product pages
+
+## Directory Structure
+
+```
+.
+├── components/            # Reusable UI components
+│   ├── layout/            # Layout components (Header, Footer, Cart)
+│   └── sections/          # Page sections (Hero, ProductGrid, etc.)
+├── lib/                   # Utilities and context providers
+│   ├── CartContext.tsx    # Shopping cart context and state management
+│   └── dummyData.ts       # Placeholder product data
+├── public/                # Static assets
+│   └── images/            # Image placeholders and assets
+└── src/                   # Source code
+    └── app/               # Next.js app directory
+        ├── page.tsx       # Homepage
+        ├── engine-heads/  # Engine Heads collection page
+        ├── structured/    # Structured collection page
+        ├── embroidered/   # Embroidered collection page
+        ├── lowers/        # Lowers collection page
+        ├── animex/        # Animex collection page
+        └── contact/       # Contact page
+```
+
+## SEO Strategy
+
+- **Meta Tags**: Customized titles, descriptions, and keywords for each page
+- **Structured Data**: Product information with schema markup
+- **Optimized Images**: Alt tags and semantic HTML
+- **Mobile-Friendly**: Responsive design for all devices
+- **Performance**: Fast loading with Core Web Vitals in mind
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/imperialaura.git
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Run the development server:
+   ```
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contact
 
-## Learn More
+Imperial Aura - [contact@imperialaura.com](mailto:contact@imperialaura.com)
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is proprietary and confidential. All rights reserved.
