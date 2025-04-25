@@ -68,6 +68,7 @@ const Header = () => {
     { name: "Engine Heads", link: "/engine-heads" },
     { name: "Limited Edition", link: "/limited-edition" },
     { name: "Animex", link: "/animex" },
+    { name: "Dummy Collections", link: "/dummy-collections" },
   ];
 
   return (
@@ -155,14 +156,6 @@ const Header = () => {
           
           {/* Mobile navigation controls - visible on mobile */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* Account Link (Mobile) */}
-            <Link
-              href="/account"
-              className="flex items-center text-sm font-medium text-black p-1 hover:text-purple-700 transition-colors"
-            >
-              <User className="w-4 h-4" />
-            </Link>
-          
             {/* Mobile cart button */}
             <motion.button 
               className="relative flex items-center justify-center w-10 h-10 text-black p-2 rounded-full"
@@ -247,6 +240,22 @@ const Header = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Contact
+              </Link>
+            </motion.div>
+            
+            {/* Account link */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + 0.1 * (categories.length + 1) }}
+            >
+              <Link
+                href="/account"
+                className="flex items-center py-2 text-base font-medium text-black hover:text-purple-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Account
               </Link>
             </motion.div>
           </div>

@@ -3,6 +3,65 @@ import Link from 'next/link';
 import * as api from '@/lib/api';
 import ProductCard from '@/components/products/ProductCard';
 import { notFound } from 'next/navigation';
+import { products as dummyProducts } from '../../../../lib/dummyData';
+
+// Type for dummy product data
+type DummyProduct = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  collection: string;
+  sizes: string[];
+  colors: string[];
+  featured: boolean;
+  new: boolean;
+  bestseller: boolean;
+};
+
+// Adapter function to convert dummy product to API product format
+function adaptDummyProduct(dummyProduct: DummyProduct): api.Product {
+  return {
+    _id: dummyProduct.id,
+    name: dummyProduct.name,
+    slug: dummyProduct.id.toLowerCase().replace(/ /g, '-'),
+    description: dummyProduct.description,
+    price: dummyProduct.price,
+    imageUrl: dummyProduct.image,
+    isNew: dummyProduct.new,
+    isBestseller: dummyProduct.bestseller,
+    category: dummyProduct.category,
+  };
+}
+
+// Get dummy products by collection name
+function getDummyProductsByCollection(collectionName: string): DummyProduct[] {
+  // Normalize the collection name for comparison
+  const normalizedName = collectionName.toLowerCase().replace(/\s+/g, '-');
+  
+  // Define a mapping from API collection slugs to dummy data collection names
+  const collectionMapping: Record<string, string> = {
+    'summer-collection': 'Summer Collection',
+    'winter-essentials': 'Winter Collection',
+    'luxury-line': 'Limited Edition',
+    'engine-heads': 'Engine Heads',
+    'structured': 'Structured',
+    'limited-edition': 'Limited Edition',
+    'embroidered': 'Embroidered',
+  };
+  
+  // Get the mapped collection name or use the original
+  const targetCollection = collectionMapping[normalizedName] || 
+                           normalizedName.split('-').map(word => 
+                             word.charAt(0).toUpperCase() + word.slice(1)
+                           ).join(' ');
+  
+  return dummyProducts.filter(product => 
+    product.collection.toLowerCase() === targetCollection.toLowerCase()
+  );
+}
 
 // Fetch collection data by slug
 async function getCollectionData(slug: string) {
@@ -13,12 +72,24 @@ async function getCollectionData(slug: string) {
       return null;
     }
     
-    // Fetch products for this collection
-    const products = await api.getProductsByCollection(collection._id);
+    // Fetch API products for this collection
+    const apiProducts = await api.getProductsByCollection(collection._id);
+    
+    // Get dummy products for this collection
+    const dummyProductsForCollection = getDummyProductsByCollection(slug);
+    
+    // Convert dummy products to API format
+    const adaptedDummyProducts = dummyProductsForCollection.map(adaptDummyProduct);
+    
+    // Combine both product sets (avoid duplicates based on ID)
+    const allProductIds = new Set(apiProducts.map(p => p._id));
+    const uniqueDummyProducts = adaptedDummyProducts.filter(p => !allProductIds.has(p._id));
+    
+    const combinedProducts = [...apiProducts, ...uniqueDummyProducts];
     
     return {
       collection,
-      products
+      products: combinedProducts
     };
   } catch (error) {
     console.error(`Error fetching collection data for slug ${slug}:`, error);
@@ -75,7 +146,7 @@ export default async function CollectionPage({ params }: { params: { slug: strin
         
         {products && products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product: any) => (
+            {products.map((product: api.Product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

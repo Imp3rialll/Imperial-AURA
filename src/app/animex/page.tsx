@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductsByCollection } from '../../../lib/dummyData';
+import { getProductsWithFallback } from '../../../lib/productUtils';
 import ProductGrid from '../../../components/sections/ProductGrid';
+import CollectionErrorBoundary from '../../../components/utils/CollectionErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'Animex Collection | Imperial Aura - Nature-Inspired Luxury Fashion',
@@ -10,8 +11,9 @@ export const metadata: Metadata = {
   keywords: 'animal inspired fashion, luxury nature fashion, Animex collection, wild-inspired clothing, Imperial Aura animex, premium animal prints, ethical luxury fashion',
 };
 
-export default function AnimexCollection() {
-  const products = getProductsByCollection('Animex');
+export default async function AnimexCollection() {
+  // Get products with fallback if needed
+  const products = await getProductsWithFallback('animex', 'Animex');
 
   return (
     <>
@@ -117,11 +119,20 @@ export default function AnimexCollection() {
         </div>
       </section>
       
-      {/* Products */}
+      {/* Products - Now using Shopify data with fallback */}
       <section className="py-16 px-4 bg-white dark:bg-gray-800 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-3 z-0" style={{ backgroundImage: 'url("/images/anime bg.jpg")' }}></div>
         <div className="container mx-auto relative z-10">
-          <ProductGrid products={products} title="Animex Collection" />
+          <CollectionErrorBoundary
+            fallback={
+              <div className="text-center py-10">
+                <h3 className="text-xl font-medium mb-4">Unable to load products</h3>
+                <p>Please try again later or contact customer support.</p>
+              </div>
+            }
+          >
+            <ProductGrid products={products} title="Animex Collection" />
+          </CollectionErrorBoundary>
         </div>
       </section>
       
@@ -202,21 +213,21 @@ export default function AnimexCollection() {
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gray-200 rounded-full mr-4"></div>
                 <div>
-                  <p className="font-medium">Aryan Malhotra</p>
-                  <p className="text-sm text-gray-500">Art Curator</p>
+                  <p className="font-medium">Rajiv Kumar</p>
+                  <p className="text-sm text-gray-500">Fashion Entrepreneur</p>
                 </div>
               </div>
             </div>
             
             <div className="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg">
               <p className="italic text-gray-600 dark:text-gray-300 mb-6">
-                "What I love about the Animex collection is how it celebrates nature without being obvious. The designs are sophisticated and the quality is exceptional."
+                "I appreciate that Imperial Aura draws inspiration from wildlife while simultaneously supporting conservation efforts. This is fashion with conscience."
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gray-200 rounded-full mr-4"></div>
                 <div>
-                  <p className="font-medium">Leela Khanna</p>
-                  <p className="text-sm text-gray-500">Environmental Activist</p>
+                  <p className="font-medium">Priya Sharma</p>
+                  <p className="text-sm text-gray-500">Environmental Advocate</p>
                 </div>
               </div>
             </div>
@@ -228,13 +239,13 @@ export default function AnimexCollection() {
       <section className="py-16 px-4 bg-primary/10 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 z-0" style={{ backgroundImage: 'url("/images/anime bg.jpg")' }}></div>
         <div className="container mx-auto text-center relative z-10">
-          <h2 className="text-3xl font-medium mb-6">Experience Animex</h2>
+          <h2 className="text-3xl font-medium mb-6">Experience Wild Elegance</h2>
           <p className="max-w-3xl mx-auto text-lg mb-8">
-            Visit our flagship store in Talegaon dabhade, Pune to see and feel the unique textures and designs of our Animex collection in person.
+            Our Animex collection offers a sophisticated way to embrace the beauty of the natural world through thoughtfully designed luxury fashion.
           </p>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
+            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Contact Us
           </Link>
@@ -243,6 +254,9 @@ export default function AnimexCollection() {
     </>
   );
 }
+
+// Tell Next.js this is a dynamic page
+export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
   // This generates the static paths for all animex product pages

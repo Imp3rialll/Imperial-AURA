@@ -1,0 +1,116 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { useShopifyAuth } from '../../../../lib/ShopifyContext';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const router = useRouter();
+  const { login } = useShopifyAuth();
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await login(email, password);
+      router.push('/account');
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <div className="min-h-screen py-20 px-4">
+      <div className="max-w-md mx-auto">
+        <motion.h1 
+          className="text-3xl font-medium mb-8 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          Sign In to Your Account
+        </motion.h1>
+        
+        <motion.div
+          className="bg-white p-8 rounded-lg shadow-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <Link href="/account/forgot-password" className="text-sm text-purple-700 hover:text-purple-800">
+                  Forgot Password?
+                </Link>
+              </div>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-md bg-purple-700 text-white font-medium text-center ${
+                loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-purple-800'
+              } transition-colors`}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+          
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <Link href="/account/register" className="text-purple-700 hover:text-purple-800 font-medium">
+                Create one
+              </Link>
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+} 

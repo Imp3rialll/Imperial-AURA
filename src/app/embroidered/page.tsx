@@ -1,8 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductsByCollection } from '../../../lib/dummyData';
+import { getProductsWithFallback } from '../../../lib/productUtils';
 import ProductGrid from '../../../components/sections/ProductGrid';
+import CollectionErrorBoundary from '../../../components/utils/CollectionErrorBoundary';
 
 export const metadata = {
   title: 'Embroidered Collection | Imperial Aura',
@@ -10,8 +11,9 @@ export const metadata = {
   keywords: 'embroidered clothing, luxury embroidery, handcrafted clothing, premium fashion, Imperial Aura',
 };
 
-export default function EmbroideredPage() {
-  const products = getProductsByCollection('Embroidered');
+export default async function EmbroideredPage() {
+  // Get products with fallback if needed
+  const products = await getProductsWithFallback('embroidered', 'Embroidered');
 
   return (
     <>
@@ -127,11 +129,20 @@ export default function EmbroideredPage() {
         </div>
       </section>
       
-      {/* Products */}
+      {/* Products - Now using Shopify data with fallback */}
       <section className="py-16 px-4 bg-white dark:bg-gray-800 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-3 z-0" style={{ backgroundImage: 'url("/images/embroidered.png")' }}></div>
         <div className="container mx-auto relative z-10">
-          <ProductGrid products={products} title="Embroidered Collection" />
+          <CollectionErrorBoundary
+            fallback={
+              <div className="text-center py-10">
+                <h3 className="text-xl font-medium mb-4">Unable to load products</h3>
+                <p>Please try again later or contact customer support.</p>
+              </div>
+            }
+          >
+            <ProductGrid products={products} title="Embroidered Collection" />
+          </CollectionErrorBoundary>
         </div>
       </section>
       
@@ -199,7 +210,7 @@ export default function EmbroideredPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-primary text-white font-medium hover:bg-primary-dark transition-colors mr-4"
+            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Contact Us
           </Link>

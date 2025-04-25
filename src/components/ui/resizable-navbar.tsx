@@ -169,14 +169,32 @@ export const Navbar = ({ children, className, brandName = "Imperial Aura" }: Nav
   
   return (
     <>
+      <style jsx global>{`
+        /* Mobile-specific navbar adjustments */
+        @media (max-width: 767px) {
+          .navbar-brand-container {
+            top: ${hasScrolled ? "10px" : "50%"} !important;
+            max-width: ${hasScrolled ? "280px" : "700px"} !important;
+          }
+          
+          .navbar-brand-text {
+            font-size: ${hasScrolled ? "1.5rem" : "3.5rem"} !important;
+          }
+          
+          .navbar-brand-svg {
+            transform: scale(${hasScrolled ? "0.65" : "0.85"}) translateY(${hasScrolled ? "-8px" : "0"}) !important;
+          }
+        }
+      `}</style>
+      
       {/* Container for logo and SVG animation */}
-      <div className="fixed z-50 pointer-events-none select-none" style={{
-        top: hasScrolled ? "32px" : "50%", // Moved up from 37.5px to 32px
+      <div className="fixed z-50 pointer-events-none select-none navbar-brand-container" style={{
+        top: hasScrolled ? "32px" : "50%",
         left: "50%",
         transform: hasScrolled ? "translate(-50%, 0)" : "translate(-50%, -50%)",
         transition: "all 0.8s cubic-bezier(0.22, 1, 0.36, 1)",
         width: hasScrolled ? "auto" : "100%",
-        maxWidth: hasScrolled ? "400px" : "800px" // Increased from 350px to 400px for more space
+        maxWidth: hasScrolled ? "400px" : "800px"
       }}>
         {/* Text animation with SVG outline effect */}
         <div className="relative">
@@ -193,7 +211,7 @@ export const Navbar = ({ children, className, brandName = "Imperial Aura" }: Nav
           </svg>
 
           <motion.h1
-            className="text-center font-ahsing select-none opacity-0"
+            className="text-center font-ahsing select-none opacity-0 navbar-brand-text"
             initial={{ 
               scale: 0.95, 
               fontSize: "5rem",
@@ -201,7 +219,7 @@ export const Navbar = ({ children, className, brandName = "Imperial Aura" }: Nav
             }}
             animate={{ 
               scale: 1,
-              fontSize: hasScrolled ? "2rem" : "5rem", // Increased from 1.75rem to 2rem
+              fontSize: hasScrolled ? "2rem" : "5rem",
             }}
             transition={{ 
               duration: 0.8, 
@@ -219,14 +237,14 @@ export const Navbar = ({ children, className, brandName = "Imperial Aura" }: Nav
           {/* SVG text with integrated line drawing effect */}
           <motion.svg
             ref={svgRef}
-            className="absolute top-0 left-0 w-full h-full"
+            className="absolute top-0 left-0 w-full h-full navbar-brand-svg"
             viewBox="0 0 400 100"
             style={{ zIndex: 2 }}
             initial={{ opacity: initialRender ? 0 : 1 }}
             animate={{ 
               opacity: 1,
-              scale: hasScrolled ? 0.75 : 1, // Increased from 0.65 to 0.75
-              y: hasScrolled ? -12 : 0, // Adjusted from -10 to -12 to move it more upward
+              scale: hasScrolled ? 0.75 : 1,
+              y: hasScrolled ? -12 : 0,
             }}
             transition={{ 
               duration: 0.8, 

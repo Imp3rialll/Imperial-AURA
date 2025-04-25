@@ -131,7 +131,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const calculateSubtotal = (item: CartItem): CartItemWithSubtotal => {
     return {
       ...item,
-      subtotal: item.price * item.quantity
+      subtotal: Number((item.price * item.quantity).toFixed(2))
     };
   };
 
@@ -140,7 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     items.reduce((sum, item) => sum + item.quantity, 0) : 0;
     
   const totalPrice = Array.isArray(items) ? 
-    items.reduce((sum, item) => sum + item.subtotal, 0) : 0;
+    Number(items.reduce((sum, item) => sum + item.subtotal, 0).toFixed(2)) : 0;
 
   // Add item to cart (localStorage implementation for now)
   const addToCart = async (productId: string, quantity: number, size?: string, color?: string) => {

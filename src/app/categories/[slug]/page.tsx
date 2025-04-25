@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import * as api from '@/lib/api';
+import * as api from '../../../../lib/api';
 
 // Fetch categories and products
 async function getCategoryData(slug: string) {

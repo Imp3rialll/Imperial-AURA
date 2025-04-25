@@ -155,4 +155,34 @@ export const getNewProducts = (): ProductData[] => {
 // Function to get bestseller products
 export const getBestsellerProducts = (): ProductData[] => {
   return products.filter((product) => product.bestseller);
+};
+
+// Function to get all products
+export const getAllProducts = (): ProductData[] => {
+  return products;
+};
+
+// Function to get related products (excluding the current product)
+export const getRelatedProducts = (
+  currentProductId: string, 
+  collection: string,
+  limit: number = 4
+): ProductData[] => {
+  // First try to get products from the same collection
+  const sameCollection = products.filter(
+    product => product.collection === collection && product.id !== currentProductId
+  );
+  
+  // If we have enough products from the same collection, return them
+  if (sameCollection.length >= limit) {
+    return sameCollection.slice(0, limit);
+  }
+  
+  // Otherwise, add some other products to reach the limit
+  const otherProducts = products.filter(
+    product => product.collection !== collection && product.id !== currentProductId
+  );
+  
+  // Combine the two arrays and return the required number of products
+  return [...sameCollection, ...otherProducts].slice(0, limit);
 }; 

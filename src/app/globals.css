@@ -392,6 +392,118 @@ body:has(.auth-page) .hidden-on-pages-that-are-not-auth {
   }
 }
 
+/* Mobile text improvements for better readability */
+@media (max-width: 767px) {
+  /* Improve paragraph readability */
+  p {
+    text-wrap: balance;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    font-size: 1rem;
+    margin-bottom: 1.25em;
+  }
+  
+  /* Improve heading balance */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75em;
+  }
+  
+  /* Specific heading sizes for mobile */
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  /* Fix long text in buttons */
+  button, .btn, a.btn {
+    text-wrap: nowrap;
+    white-space: nowrap;
+  }
+  
+  /* Adjust list spacing */
+  ul, ol {
+    padding-left: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  /* Better handling of card text */
+  .card-content p, 
+  .product-description,
+  .collection-description {
+    text-wrap: pretty;
+    font-size: 0.95rem;
+  }
+  
+  /* Improve form field text */
+  input, textarea, select {
+    font-size: 1rem !important;
+  }
+  
+  /* Fix clipping issues */
+  .text-clip-fix {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Improve section padding for better content spacing */
+  section, .section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+  
+  /* Better card spacing */
+  .card {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Improve grid layouts */
+  .grid {
+    gap: 1.5rem !important;
+  }
+  
+  /* Fix container padding */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Prevent overflow on mobile */
+  .prevent-overflow {
+    overflow-x: hidden;
+  }
+  
+  /* Better paragraph spacing in containers */
+  .text-container p {
+    margin-bottom: 1rem;
+  }
+  
+  /* Improved blockquote styling */
+  blockquote {
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--primary);
+    font-style: italic;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

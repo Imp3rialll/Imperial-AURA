@@ -7,6 +7,7 @@ import Footer from "../../components/layout/Footer";
 import { CartProvider, useCart } from "@/lib/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
+import { ShopifyAuthProvider } from "../../lib/ShopifyContext";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -28,7 +29,7 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main className={`transition-all duration-500 ease-in-out ${isCartOpen ? 'blur-[6px] scale-[0.99]' : ''}`}>
+      <main className={`transition-all duration-500 ease-in-out prevent-overflow ${isCartOpen ? 'blur-[6px] scale-[0.99]' : ''}`}>
         {children}
       </main>
       <Footer />
@@ -82,11 +83,13 @@ export default function RootLayout({
         className={`${playfair.variable} ${montserrat.variable} antialiased`}
       >
         <AuthProvider>
-          <CartProvider>
-            <RootLayoutContent>
-              {children}
-            </RootLayoutContent>
-          </CartProvider>
+          <ShopifyAuthProvider>
+            <CartProvider>
+              <RootLayoutContent>
+                {children}
+              </RootLayoutContent>
+            </CartProvider>
+          </ShopifyAuthProvider>
         </AuthProvider>
       </body>
     </html>

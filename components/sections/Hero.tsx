@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface HeroProps {
@@ -32,25 +31,17 @@ const Hero: React.FC<HeroProps> = ({
   
   return (
     <div className="relative h-screen w-full overflow-hidden will-change-transform">
-      {/* Hero Background - optimized for performance with slower animation */}
-      <motion.div 
-        className="absolute inset-0 z-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ 
-          duration: 2.5, // Much slower fade in for dramatic effect
-          ease: [0.22, 0.03, 0.26, 1.0] // Gentler easing
-        }}
+      {/* Hero Background */}
+      <div 
+        className={`absolute inset-0 z-0 transition-opacity duration-[2500ms] ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         style={{ 
           willChange: "transform", 
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden"
         }}
       >
-        <motion.div 
-          initial={{ scale: 1.05 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 4.5, ease: [0.22, 0.03, 0.35, 1.0] }}
+        <div 
+          className={`transition-transform duration-[4500ms] ease-in-out ${isLoaded ? 'scale-100' : 'scale-105'}`}
           style={{ 
             position: 'absolute',
             top: 0,
@@ -68,42 +59,36 @@ const Hero: React.FC<HeroProps> = ({
           className="absolute inset-0 bg-black/5"
           style={{ transform: 'translateZ(0)' }}
         />
-      </motion.div>
+      </div>
 
       {/* Imperial Aura Logo (centered in screen) - only shows on mobile */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
-        {/* Logo/branding animation - Using CSS media queries for better handling */}
-        <motion.div
-          className="md:hidden" // Hide on medium screens and up using Tailwind
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            duration: 2.8, 
-            delay: 0.8,
-            ease: [0.22, 0.03, 0.35, 1.0]
-          }}
+        {/* Logo/branding - Using CSS for animation */}
+        <div
+          className={`md:hidden transition-all duration-[2800ms] ease-in-out ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+          style={{ transitionDelay: '800ms' }}
         >
           <div className="bg-black/20 backdrop-blur-sm py-6 px-4 rounded-lg">
             {/* Mobile-only text */}
-            <motion.div 
-              className="text-cream font-ahsing mobile-hero-text"
-              initial={{ letterSpacing: "0.2em" }}
-              animate={{ letterSpacing: "0.25em" }}
-              transition={{ duration: 3.5, delay: 1.0, ease: [0.19, 0.13, 0.35, 0.96] }}
+            <div 
+              className="text-cream font-ahsing mobile-hero-text transition-all duration-[3500ms]"
+              style={{ 
+                letterSpacing: "0.25em",
+                transitionDelay: '1000ms',
+                transitionProperty: 'letter-spacing'
+              }}
             >
               IMPERIAL AURA
-            </motion.div>
+            </div>
             
-            <motion.div 
-              className="mt-4 text-lg tracking-widest uppercase opacity-80"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.8 }}
-              transition={{ duration: 2.5, delay: 2.0 }}
+            <div 
+              className={`mt-4 text-lg tracking-widest uppercase transition-opacity duration-[2500ms] ease-in-out ${isLoaded ? 'opacity-80' : 'opacity-0'}`}
+              style={{ transitionDelay: '2000ms' }}
             >
               Luxury Redefined
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

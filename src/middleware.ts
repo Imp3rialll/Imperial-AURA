@@ -8,35 +8,43 @@ const protectedRoutes = [
   '/account'
 ];
 
+// Auth-related pages that should be excluded from protection
+const authPages = [
+  '/account/login',
+  '/account/register',
+  '/account/forgot-password',
+  '/account/reset-password'
+];
+
 // For now, just check if the path starts with any protected route
 const isProtectedRoute = (path: string): boolean => {
+  // First check if path is in the auth pages list - these should always be accessible
+  if (authPages.some(page => path.startsWith(page))) {
+    return false;
+  }
+  
+  // Then check if it's a protected route
   return protectedRoutes.some(route => path.startsWith(route));
 };
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
-  // Just pass through all requests for now
-  // This will be replaced with Shopify authentication logic
-  return NextResponse.next();
-  
-  // When integrating with Shopify, implement authentication check here:
-  /*
   // Only check authentication for protected routes
   if (!isProtectedRoute(path)) {
     return NextResponse.next();
   }
   
-  // Example Shopify auth check (implement based on Shopify's requirements)
-  const shopifyAuthCookie = request.cookies.get('shopify_customer_auth');
+  // Check for Shopify customer token
+  const shopifyAccessToken = request.cookies.get('shopifyCustomerAccessToken')?.value;
+  const tokenExpiry = request.cookies.get('shopifyCustomerTokenExpiry')?.value;
   
-  if (!shopifyAuthCookie) {
-    // Redirect to Shopify login
+  // If no token or token is expired, redirect to login
+  if (!shopifyAccessToken || !tokenExpiry || new Date(tokenExpiry) <= new Date()) {
     return NextResponse.redirect(new URL('/account/login', request.url));
   }
   
   return NextResponse.next();
-  */
 }
 
 export const config = {

@@ -71,7 +71,7 @@ export default function Home() {
                     viewport={{ once: false, amount: 0.5 }}
                   ></motion.div>
                   <motion.p 
-                    className="text-xl mb-10 text-white leading-relaxed"
+                    className="text-xl mb-10 text-white leading-relaxed text-clip-fix"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
@@ -168,7 +168,7 @@ export default function Home() {
                     viewport={{ once: false, amount: 0.5 }}
                   ></motion.div>
                   <motion.p 
-                    className="text-xl mb-10 text-white leading-relaxed"
+                    className="text-xl mb-10 text-white leading-relaxed text-clip-fix"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
@@ -235,7 +235,7 @@ export default function Home() {
                     viewport={{ once: false, amount: 0.5 }}
                   ></motion.div>
                   <motion.p 
-                    className="text-xl mb-10 text-white leading-relaxed"
+                    className="text-xl mb-10 text-white leading-relaxed text-clip-fix"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
@@ -331,7 +331,7 @@ export default function Home() {
                     viewport={{ once: false, amount: 0.5 }}
                   ></motion.div>
                   <motion.p 
-                    className="text-xl mb-10 text-white leading-relaxed"
+                    className="text-xl mb-10 text-white leading-relaxed text-clip-fix"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}
@@ -398,7 +398,7 @@ export default function Home() {
                     viewport={{ once: false, amount: 0.5 }}
                   ></motion.div>
                   <motion.p 
-                    className="text-xl mb-10 text-white leading-relaxed"
+                    className="text-xl mb-10 text-white leading-relaxed text-clip-fix"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96], delay: 0.3 }}

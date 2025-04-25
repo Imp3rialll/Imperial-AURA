@@ -1,8 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductsByCollection } from '../../../lib/dummyData';
+import { getProductsWithFallback } from '../../../lib/productUtils';
 import ProductGrid from '../../../components/sections/ProductGrid';
+import CollectionErrorBoundary from '../../../components/utils/CollectionErrorBoundary';
 
 export const metadata = {
   title: 'Limited Edition Collection | Imperial Aura',
@@ -10,8 +11,9 @@ export const metadata = {
   keywords: 'limited edition clothing, exclusive luxury fashion, numbered luxury pieces, rare fashion designs, Imperial Aura limited edition, collectible fashion',
 };
 
-export default function LimitedEditionPage() {
-  const products = getProductsByCollection('Limited Edition');
+export default async function LimitedEditionPage() {
+  // Get products with fallback if needed
+  const products = await getProductsWithFallback('limited-edition', 'Limited Edition');
 
   return (
     <>
@@ -128,11 +130,20 @@ export default function LimitedEditionPage() {
         </div>
       </section>
       
-      {/* Products */}
+      {/* Products - Now using Shopify data with fallback */}
       <section className="py-16 px-4 bg-white dark:bg-gray-800 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-3 z-0" style={{ backgroundImage: 'url("/images/limited edition.png")' }}></div>
         <div className="container mx-auto relative z-10">
-          <ProductGrid products={products} title="Limited Edition Collection" />
+          <CollectionErrorBoundary
+            fallback={
+              <div className="text-center py-10">
+                <h3 className="text-xl font-medium mb-4">Unable to load products</h3>
+                <p>Please try again later or contact customer support.</p>
+              </div>
+            }
+          >
+            <ProductGrid products={products} title="Limited Edition Collection" />
+          </CollectionErrorBoundary>
         </div>
       </section>
       
@@ -198,12 +209,11 @@ export default function LimitedEditionPage() {
           <h2 className="text-3xl font-medium mb-6">Secure Your Limited Edition Piece</h2>
           <p className="max-w-3xl mx-auto text-lg mb-8">
             Due to the exclusive nature of our Limited Edition collection, many pieces sell out quickly. 
-            Contact us directly to inquire about availability or to arrange a private viewing of these 
-            exceptional garments.
+            Contact us today to inquire about availability or to reserve your piece from an upcoming release.
           </p>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
+            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Contact Us
           </Link>

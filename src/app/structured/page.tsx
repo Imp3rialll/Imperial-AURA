@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductsByCollection } from '../../../lib/dummyData';
+import { getProductsWithFallback } from '../../../lib/productUtils';
 import ProductGrid from '../../../components/sections/ProductGrid';
+import CollectionErrorBoundary from '../../../components/utils/CollectionErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'Structured Collection | Imperial Aura - Luxury Clothing Brand',
@@ -10,8 +11,9 @@ export const metadata: Metadata = {
   keywords: 'structured clothing, luxury tailoring, architectural fashion, precision tailoring, Imperial Aura structured, contemporary silhouettes',
 };
 
-export default function StructuredCollection() {
-  const products = getProductsByCollection('Structured');
+export default async function StructuredCollection() {
+  // Get products with fallback if needed
+  const products = await getProductsWithFallback('structured', 'Structured');
 
   return (
     <>
@@ -117,11 +119,20 @@ export default function StructuredCollection() {
         </div>
       </section>
       
-      {/* Products */}
+      {/* Products - Now using Shopify data with fallback */}
       <section className="py-16 px-4 bg-white dark:bg-gray-800 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-3 z-0" style={{ backgroundImage: 'url("/images/structured.png")' }}></div>
         <div className="container mx-auto relative z-10">
-          <ProductGrid products={products} title="Structured Collection" />
+          <CollectionErrorBoundary
+            fallback={
+              <div className="text-center py-10">
+                <h3 className="text-xl font-medium mb-4">Unable to load products</h3>
+                <p>Please try again later or contact customer support.</p>
+              </div>
+            }
+          >
+            <ProductGrid products={products} title="Structured Collection" />
+          </CollectionErrorBoundary>
         </div>
       </section>
       
@@ -201,21 +212,21 @@ export default function StructuredCollection() {
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gray-200 rounded-full mr-4"></div>
                 <div>
-                  <p className="font-medium">Anjali Kapoor</p>
-                  <p className="text-sm text-gray-500">Architect</p>
+                  <p className="font-medium">Amara Patel</p>
+                  <p className="text-sm text-gray-500">Legal Consultant</p>
                 </div>
               </div>
             </div>
             
             <div className="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg">
               <p className="italic text-gray-600 dark:text-gray-300 mb-6">
-                "The clean lines and architectural influence in their designs make Imperial Aura's structured collection truly distinctive."
+                "I appreciate the architectural quality of Imperial Aura's structured designs. They manage to be both bold and understated at the same time."
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gray-200 rounded-full mr-4"></div>
                 <div>
-                  <p className="font-medium">Rahul Sharma</p>
-                  <p className="text-sm text-gray-500">Design Professional</p>
+                  <p className="font-medium">Rahul Singh</p>
+                  <p className="text-sm text-gray-500">Architect</p>
                 </div>
               </div>
             </div>
@@ -229,12 +240,11 @@ export default function StructuredCollection() {
         <div className="container mx-auto text-center relative z-10">
           <h2 className="text-3xl font-medium mb-6">Elevate Your Style</h2>
           <p className="max-w-3xl mx-auto text-lg mb-8">
-            Experience the perfect balance of form and function with our structured collection. 
-            Each piece is designed to enhance your presence with architectural precision and timeless elegance.
+            Discover the perfect fusion of form and function in our Structured Collection. Each piece is designed to enhance your presence with timeless sophistication.
           </p>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
+            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Contact Us
           </Link>

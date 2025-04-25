@@ -1,0 +1,56 @@
+/* Mobile-specific styles */
+
+.mobileContainer {
+  /* Only applied when in mobile view mode */
+}
+
+@media (max-width: 767px) {
+  /* Fix padding and spacing for cleaner mobile layout */
+  .section {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Reduce excessive vertical spacing on mobile */
+  .reducedPadding {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+  
+  /* Make product descriptions more readable on mobile */
+  .betterText {
+    font-size: 1.1rem !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Fix large text causing overflow on mobile */
+  .smallerHeading {
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Adjust layout grid gaps for mobile */
+  .smallerGap {
+    gap: 2rem !important;
+  }
+  
+  /* Fix padding in box elements on mobile */
+  .smallerPadding {
+    padding: 1.25rem !important;
+  }
+  
+  /* Fix hero section height on mobile */
+  .shorterSection {
+    min-height: 70vh !important;
+  }
+  
+  /* Fix image container sizing on mobile */
+  .fullWidthImage {
+    max-width: 100% !important;
+  }
+  
+  /* Fix background opacity issues */
+  .improvedBackground {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+  }
+}

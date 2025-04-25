@@ -100,14 +100,6 @@ export default function Contact() {
           {/* Contact Form */}
           <ContactForm />
         </div>
-
-        {/* Map Section */}
-        <div className="mt-20">
-          <h2 className="text-3xl font-medium mb-8 text-center">Find Us</h2>
-          <div className="bg-gray-300 h-[400px] w-full flex items-center justify-center rounded-lg shadow-md">
-            <p className="text-lg text-gray-600">Map placeholder - Talegaon dabhade, Pune, India</p>
-          </div>
-        </div>
       </div>
     </div>
   );

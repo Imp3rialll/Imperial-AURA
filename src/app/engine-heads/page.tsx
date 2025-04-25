@@ -1,8 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductsByCollection } from '../../../lib/dummyData';
+import { getProductsWithFallback } from '../../../lib/productUtils';
 import ProductGrid from '../../../components/sections/ProductGrid';
+import CollectionErrorBoundary from '../../../components/utils/CollectionErrorBoundary';
 
 export const metadata = {
   title: 'Engine Heads Collection | Imperial Aura',
@@ -10,8 +11,9 @@ export const metadata = {
   keywords: 'engine heads, luxury shirts, designer shirts, premium fabrics, Imperial Aura',
 };
 
-export default function EngineHeadsPage() {
-  const products = getProductsByCollection('Engine Heads');
+export default async function EngineHeadsPage() {
+  // Get products with fallback if needed
+  const products = await getProductsWithFallback('engine-heads', 'Engine Heads');
 
   return (
     <>
@@ -128,11 +130,20 @@ export default function EngineHeadsPage() {
         </div>
       </section>
       
-      {/* Products */}
+      {/* Products - Now using Shopify data with fallback */}
       <section className="py-16 px-4 bg-white dark:bg-gray-800 relative">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-3 z-0" style={{ backgroundImage: 'url("/images/engine head background.png")' }}></div>
         <div className="container mx-auto relative z-10">
-          <ProductGrid products={products} title="Engine Heads Collection" />
+          <CollectionErrorBoundary
+            fallback={
+              <div className="text-center py-10">
+                <h3 className="text-xl font-medium mb-4">Unable to load products</h3>
+                <p>Please try again later or contact customer support.</p>
+              </div>
+            }
+          >
+            <ProductGrid products={products} title="Engine Heads Collection" />
+          </CollectionErrorBoundary>
         </div>
       </section>
       
@@ -200,7 +211,7 @@ export default function EngineHeadsPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
+            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Contact Us
           </Link>
