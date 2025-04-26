@@ -107,13 +107,15 @@ if (typeof window === 'undefined' && (!domain || !accessToken)) {
   console.warn('Missing Shopify API configuration.');
 }
 
+// Create GraphQL client for Shopify Storefront API
 export const shopifyClient = new GraphQLClient(
-  `https://${domain}/api/2025-04/graphql.json`,
+  `https://${domain}/api/2023-10/graphql.json`,
   {
     headers: {
       'X-Shopify-Storefront-Access-Token': accessToken as string,
       'Content-Type': 'application/json',
     },
+    // Remove fetch and mode options as they can cause issues in Vercel
   }
 );
 

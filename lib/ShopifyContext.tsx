@@ -47,21 +47,24 @@ export const useShopifyAuth = () => useContext(ShopifyAuthContext);
 async function setAuthCookies(accessToken: string, expiresAt: string) {
   try {
     const response = await fetch('/api/auth/shopify', {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ accessToken, expiresAt }),
+      body: JSON.stringify({
+        accessToken,
+        expiresAt,
+      }),
     });
     
     if (!response.ok) {
-      throw new Error('Failed to set authentication cookies');
+      throw new Error('Failed to set auth cookies');
     }
     
-    return true;
+    return await response.json();
   } catch (error) {
     console.error('Error setting auth cookies:', error);
-    return false;
+    // Continue even if cookie setting fails, as we have localStorage as a fallback
   }
 }
 
@@ -73,13 +76,13 @@ async function removeAuthCookies() {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to remove authentication cookies');
+      throw new Error('Failed to remove auth cookies');
     }
     
-    return true;
+    return await response.json();
   } catch (error) {
     console.error('Error removing auth cookies:', error);
-    return false;
+    // Continue even if cookie removal fails
   }
 }
 
@@ -90,39 +93,144 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState<ShopifyCustomer | null>(null);
   const [customerAccessToken, setCustomerAccessToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
-  // Load auth state from localStorage on mount
-  useEffect(() => {
-    const loadAuthState = async () => {
-      setIsLoading(true);
+  // Load auth state from localStorage and cookies
+  const loadAuthState = async () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
+    try {
+      // Check for token in localStorage first
+      const storedToken = localStorage.getItem('shopifyCustomerAccessToken');
+      const tokenExpiry = localStorage.getItem('shopifyCustomerTokenExpiry');
+      
+      if (!storedToken || !tokenExpiry) {
+        return;
+      }
+      
+      // Check if token is expired
+      const expiry = new Date(tokenExpiry);
+      if (expiry < new Date()) {
+        // Token is expired, log out
+        await logout();
+        return;
+      }
+      
+      // Token is valid, set it
+      setCustomerAccessToken(storedToken);
+      setIsAuthenticated(true);
+      
+      // Load customer data
       try {
-        const token = localStorage.getItem('shopifyCustomerAccessToken');
-        const tokenExpiry = localStorage.getItem('shopifyCustomerTokenExpiry');
-        
-        if (token && tokenExpiry) {
-          // Check if the token is expired
-          if (new Date(tokenExpiry) > new Date()) {
-            setCustomerAccessToken(token);
-            setIsAuthenticated(true);
-            
-            // Fetch the customer data
-            const customerData = await getCustomerProfile(token);
-            setCustomer(customerData);
-          } else {
-            // Token is expired, clear it
-            localStorage.removeItem('shopifyCustomerAccessToken');
-            localStorage.removeItem('shopifyCustomerTokenExpiry');
-            await removeAuthCookies();
+        // Use API route to avoid CORS issues
+        const query = `
+          query getCustomer($customerAccessToken: String!) {
+            customer(customerAccessToken: $customerAccessToken) {
+              id
+              firstName
+              lastName
+              email
+              phone
+              defaultAddress {
+                id
+                address1
+                address2
+                city
+                province
+                zip
+                country
+                phone
+              }
+              addresses(first: 10) {
+                edges {
+                  node {
+                    id
+                    address1
+                    address2
+                    city
+                    province
+                    zip
+                    country
+                    phone
+                  }
+                }
+              }
+              orders(first: 5) {
+                edges {
+                  node {
+                    id
+                    orderNumber
+                    processedAt
+                    financialStatus
+                    fulfillmentStatus
+                    totalPrice {
+                      amount
+                      currencyCode
+                    }
+                    lineItems(first: 5) {
+                      edges {
+                        node {
+                          title
+                          quantity
+                          variant {
+                            price {
+                              amount
+                              currencyCode
+                            }
+                            image {
+                              originalSrc
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
+        `;
+
+        const variables = {
+          customerAccessToken: storedToken,
+        };
+        
+        const response = await fetch('/api/auth/shopify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query, variables }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load customer data');
+        }
+        
+        const data = await response.json();
+        if (data.customer) {
+          setCustomer(data.customer);
+        } else {
+          // No customer data returned, logout
+          await logout();
         }
       } catch (error) {
-        console.error('Error loading Shopify auth state:', error);
-        setError('Failed to load authentication state');
-      } finally {
-        setIsLoading(false);
+        console.error('Error loading customer data:', error);
+        // If there's an error, we'll log the user out to be safe
+        await logout();
       }
-    };
+    } catch (error) {
+      console.error('Error loading auth state:', error);
+      await logout();
+    } finally {
+      setInitialized(true);
+    }
+  };
 
+  // Load auth state on mount
+  useEffect(() => {
     loadAuthState();
   }, []);
 
@@ -131,8 +239,74 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     
+    // Debug info for login
+    console.log(`Attempting login for email: ${email.substring(0, 3)}...`);
+    console.log('Auth initialized:', initialized);
+    
     try {
-      const { accessToken, expiresAt } = await customerLogin(email, password);
+      // Check for network
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        throw new Error('No internet connection. Please check your network and try again.');
+      }
+      
+      // Use API route to avoid CORS issues
+      const query = `
+        mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+          customerAccessTokenCreate(input: $input) {
+            customerAccessToken {
+              accessToken
+              expiresAt
+            }
+            customerUserErrors {
+              code
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        input: {
+          email,
+          password,
+        },
+      };
+      
+      console.log('Sending request to API route...');
+      const response = await fetch('/api/auth/shopify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+        cache: 'no-store'
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API route error:', errorData);
+        throw new Error(errorData.error || 'Login failed');
+      }
+      
+      const data = await response.json();
+      console.log('API response received');
+      
+      if (data.customerAccessTokenCreate?.customerUserErrors?.length > 0) {
+        const error = data.customerAccessTokenCreate.customerUserErrors[0];
+        console.error('Customer error:', error);
+        throw new Error(error.message);
+      }
+      
+      if (!data.customerAccessTokenCreate?.customerAccessToken) {
+        console.error('Missing token in response:', data);
+        throw new Error('Authentication failed - no token received');
+      }
+      
+      const { accessToken, expiresAt } = data.customerAccessTokenCreate.customerAccessToken;
+      console.log('Token received, saving...');
       
       // Save token to localStorage and cookies
       localStorage.setItem('shopifyCustomerAccessToken', accessToken);
@@ -142,10 +316,11 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
       setCustomerAccessToken(accessToken);
       setIsAuthenticated(true);
       
-      // Fetch customer data
-      const customerData = await getCustomerProfile(accessToken);
-      setCustomer(customerData);
+      // Fetch customer data with the token
+      await refreshCustomerData();
+      console.log('Login process completed successfully');
     } catch (error: any) {
+      console.error('Login error details:', error);
       setError(error.message || 'Login failed');
       throw error;
     } finally {
@@ -159,12 +334,59 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      // Create the customer
-      await customerSignup(firstName, lastName, email, password, phone);
+      // Use API route to avoid CORS issues
+      const query = `
+        mutation customerCreate($input: CustomerCreateInput!) {
+          customerCreate(input: $input) {
+            customer {
+              id
+              firstName
+              lastName
+              email
+            }
+            customerUserErrors {
+              code
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        input: {
+          firstName,
+          lastName,
+          email,
+          password,
+          phone,
+          acceptsMarketing: true,
+        },
+      };
       
-      // Then login with the new account
+      const response = await fetch('/api/auth/shopify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Signup failed');
+      }
+      
+      const data = await response.json();
+      
+      if (data.customerCreate?.customerUserErrors?.length > 0) {
+        throw new Error(data.customerCreate.customerUserErrors[0].message);
+      }
+      
+      // Login with the new credentials
       await login(email, password);
     } catch (error: any) {
+      console.error('Signup error:', error);
       setError(error.message || 'Signup failed');
       throw error;
     } finally {
@@ -195,9 +417,96 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     
     setIsLoading(true);
     try {
-      const customerData = await getCustomerProfile(customerAccessToken);
-      setCustomer(customerData);
+      // Use API route to avoid CORS issues
+      const query = `
+        query getCustomer($customerAccessToken: String!) {
+          customer(customerAccessToken: $customerAccessToken) {
+            id
+            firstName
+            lastName
+            email
+            phone
+            defaultAddress {
+              id
+              address1
+              address2
+              city
+              province
+              zip
+              country
+              phone
+            }
+            addresses(first: 10) {
+              edges {
+                node {
+                  id
+                  address1
+                  address2
+                  city
+                  province
+                  zip
+                  country
+                  phone
+                }
+              }
+            }
+            orders(first: 5) {
+              edges {
+                node {
+                  id
+                  orderNumber
+                  processedAt
+                  financialStatus
+                  fulfillmentStatus
+                  totalPrice {
+                    amount
+                    currencyCode
+                  }
+                  lineItems(first: 5) {
+                    edges {
+                      node {
+                        title
+                        quantity
+                        variant {
+                          price {
+                            amount
+                            currencyCode
+                          }
+                          image {
+                            originalSrc
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        customerAccessToken,
+      };
+      
+      const response = await fetch('/api/auth/shopify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch customer data');
+      }
+      
+      const data = await response.json();
+      setCustomer(data.customer);
     } catch (error: any) {
+      console.error('Error refreshing customer data:', error);
       setError(error.message || 'Failed to refresh customer data');
       
       // If the token is invalid, log out
@@ -215,8 +524,42 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      return await customerRecoverPassword(email);
+      const query = `
+        mutation customerRecover($email: String!) {
+          customerRecover(email: $email) {
+            customerUserErrors {
+              code
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const variables = { email };
+      
+      const response = await fetch('/api/auth/shopify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Password recovery failed');
+      }
+      
+      const data = await response.json();
+      
+      if (data.customerRecover?.customerUserErrors?.length > 0) {
+        throw new Error(data.customerRecover.customerUserErrors[0].message);
+      }
+      
+      return { success: true };
     } catch (error: any) {
+      console.error('Password recovery error:', error);
       setError(error.message || 'Password recovery failed');
       throw error;
     } finally {
@@ -230,7 +573,46 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      const { accessToken, expiresAt } = await customerResetPassword(resetToken, password);
+      const query = `
+        mutation customerResetByUrl($resetUrl: URL!, $password: String!) {
+          customerResetByUrl(resetUrl: $resetUrl, password: $password) {
+            customerAccessToken {
+              accessToken
+              expiresAt
+            }
+            customerUserErrors {
+              code
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      // Shopify requires the full reset URL
+      const resetUrl = `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/account/reset/${resetToken}`;
+      const variables = { resetUrl, password };
+      
+      const response = await fetch('/api/auth/shopify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Password reset failed');
+      }
+      
+      const data = await response.json();
+      
+      if (data.customerResetByUrl?.customerUserErrors?.length > 0) {
+        throw new Error(data.customerResetByUrl.customerUserErrors[0].message);
+      }
+      
+      const { accessToken, expiresAt } = data.customerResetByUrl.customerAccessToken;
       
       // Save token to localStorage and cookies
       localStorage.setItem('shopifyCustomerAccessToken', accessToken);
@@ -241,9 +623,9 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
       
       // Fetch customer data
-      const customerData = await getCustomerProfile(accessToken);
-      setCustomer(customerData);
+      await refreshCustomerData();
     } catch (error: any) {
+      console.error('Password reset error:', error);
       setError(error.message || 'Password reset failed');
       throw error;
     } finally {
