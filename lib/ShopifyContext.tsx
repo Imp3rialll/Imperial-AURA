@@ -18,7 +18,7 @@ interface ShopifyAuthContextType {
   customerAccessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (firstName: string, lastName: string, email: string, password: string, phone?: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<{ success: boolean; error?: string }>;
   refreshCustomerData: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ success: boolean }>;
   resetPassword: (resetToken: string, password: string) => Promise<void>;
@@ -33,7 +33,7 @@ const ShopifyAuthContext = createContext<ShopifyAuthContextType>({
   customerAccessToken: null,
   login: async () => {},
   signup: async () => {},
-  logout: () => {},
+  logout: async () => ({ success: false }),
   refreshCustomerData: async () => {},
   forgotPassword: async () => ({ success: false }),
   resetPassword: async () => {},
@@ -101,12 +101,23 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     
+    // Set a timeout to prevent infinite loading state
+    const loadingTimeout = setTimeout(() => {
+      console.log('Auth loading timed out after 10 seconds');
+      setIsLoading(false);
+      setError('Authentication loading timed out. Please try logging in again.');
+      setInitialized(true);
+    }, 10000); // 10 second timeout
+    
     try {
       // Check for token in localStorage first
       const storedToken = localStorage.getItem('shopifyCustomerAccessToken');
       const tokenExpiry = localStorage.getItem('shopifyCustomerTokenExpiry');
       
       if (!storedToken || !tokenExpiry) {
+        clearTimeout(loadingTimeout);
+        setIsLoading(false);
+        setInitialized(true);
         return;
       }
       
@@ -115,6 +126,9 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
       if (expiry < new Date()) {
         // Token is expired, log out
         await logout();
+        clearTimeout(loadingTimeout);
+        setIsLoading(false);
+        setInitialized(true);
         return;
       }
       
@@ -197,22 +211,31 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
           customerAccessToken: storedToken,
         };
         
+        console.log('Fetching customer data...');
         const response = await fetch('/api/auth/shopify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ query, variables }),
+          cache: 'no-store'
         });
         
+        console.log('Customer data response:', response.status);
+        
         if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error data:', errorData);
           throw new Error('Failed to load customer data');
         }
         
         const data = await response.json();
+        console.log('Customer data received:', data ? 'Yes' : 'No');
+        
         if (data.customer) {
           setCustomer(data.customer);
         } else {
+          console.error('No customer data in response');
           // No customer data returned, logout
           await logout();
         }
@@ -225,6 +248,8 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
       console.error('Error loading auth state:', error);
       await logout();
     } finally {
+      clearTimeout(loadingTimeout);
+      setIsLoading(false);
       setInitialized(true);
     }
   };
@@ -396,16 +421,52 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = async () => {
-    // Clear from localStorage
-    localStorage.removeItem('shopifyCustomerAccessToken');
-    localStorage.removeItem('shopifyCustomerTokenExpiry');
+    console.log('Logging out...');
     
-    // Clear from cookies
-    await removeAuthCookies();
-    
-    setCustomerAccessToken(null);
-    setCustomer(null);
-    setIsAuthenticated(false);
+    try {
+      // Clear from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('shopifyCustomerAccessToken');
+        localStorage.removeItem('shopifyCustomerTokenExpiry');
+        
+        // For extra safety, check if items were actually removed
+        const tokenCheck = localStorage.getItem('shopifyCustomerAccessToken');
+        const expiryCheck = localStorage.getItem('shopifyCustomerTokenExpiry');
+        if (tokenCheck || expiryCheck) {
+          console.warn('Failed to remove items from localStorage:', { 
+            tokenRemoved: !tokenCheck, 
+            expiryRemoved: !expiryCheck 
+          });
+        }
+      }
+      
+      // Clear from cookies
+      try {
+        const cookieResponse = await removeAuthCookies();
+        console.log('Cookie removal response:', cookieResponse?.success ? 'Success' : 'Failed');
+      } catch (cookieError) {
+        console.error('Failed to remove auth cookies:', cookieError);
+        // Continue despite cookie removal failure
+      }
+      
+      // Clear state
+      setCustomerAccessToken(null);
+      setCustomer(null);
+      setIsAuthenticated(false);
+      setError(null);
+      
+      console.log('Logout completed successfully');
+      return { success: true };
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Even if there's an error, try to reset the auth state
+      setCustomerAccessToken(null);
+      setCustomer(null);
+      setIsAuthenticated(false);
+      
+      return { success: false, error: 'An error occurred during logout' };
+    }
   };
 
   // Refresh customer data function
@@ -416,6 +477,14 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
     }
     
     setIsLoading(true);
+    
+    // Set a timeout to prevent infinite loading
+    const refreshTimeout = setTimeout(() => {
+      console.log('Refresh customer data timed out after 10 seconds');
+      setIsLoading(false);
+      setError('Data refresh timed out. Please try again later.');
+    }, 10000); // 10 second timeout
+    
     try {
       // Use API route to avoid CORS issues
       const query = `
@@ -490,30 +559,44 @@ export function ShopifyAuthProvider({ children }: { children: ReactNode }) {
         customerAccessToken,
       };
       
+      console.log('Refreshing customer data...');
       const response = await fetch('/api/auth/shopify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ query, variables }),
+        cache: 'no-store'
       });
+      
+      console.log('Refresh response status:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Refresh error data:', errorData);
         throw new Error(errorData.error || 'Failed to fetch customer data');
       }
       
       const data = await response.json();
+      
+      if (!data.customer) {
+        console.error('No customer data in refresh response:', data);
+        throw new Error('Customer data not found');
+      }
+      
       setCustomer(data.customer);
+      console.log('Customer data refreshed successfully');
     } catch (error: any) {
       console.error('Error refreshing customer data:', error);
       setError(error.message || 'Failed to refresh customer data');
       
       // If the token is invalid, log out
-      if (error.message.includes('access token')) {
+      if (error.message?.includes('access token')) {
+        console.log('Invalid token detected, logging out');
         await logout();
       }
     } finally {
+      clearTimeout(refreshTimeout);
       setIsLoading(false);
     }
   };

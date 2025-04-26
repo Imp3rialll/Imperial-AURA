@@ -67,10 +67,47 @@ export default function AccountPage() {
     return (
       <>
         <DevelopmentBanner />
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="flex flex-col items-center">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="flex flex-col items-center mb-6">
             <Loader2 className="h-12 w-12 text-purple-700 animate-spin mb-4" />
             <p className="text-lg text-gray-600">Loading your account...</p>
+          </div>
+          
+          {/* Add debug information */}
+          <div className="mt-8 text-gray-500 text-sm max-w-md">
+            <p>If this message persists for more than a few seconds:</p>
+            <ol className="list-decimal pl-6 mt-2">
+              <li className="mb-2">Check if you're logged in. If not, please <Link href="/account/login" className="text-purple-600 hover:underline">sign in</Link>.</li>
+              <li className="mb-2">Visit the <Link href="/account/test" className="text-purple-600 hover:underline">test page</Link> to diagnose connection issues.</li>
+              <li className="mb-2">Try clearing your browser cache and cookies.</li>
+            </ol>
+            <button 
+              onClick={() => router.push('/account/login')}
+              className="mt-4 px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+  
+  // Show not authenticated state
+  if (!isAuthenticated) {
+    return (
+      <>
+        <DevelopmentBanner />
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-medium mb-4">Not logged in</h2>
+            <p className="text-gray-600 mb-6">Please log in to view your account details.</p>
+            <button 
+              onClick={() => router.push('/account/login')}
+              className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800"
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </>

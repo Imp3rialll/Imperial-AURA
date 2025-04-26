@@ -22,7 +22,12 @@ export default function LoginPage() {
     setError(null);
     
     try {
-      // Use test credentials if in development mode
+      // Check if we're online first
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        throw new Error('No internet connection. Please check your network and try again.');
+      }
+      
+      // Development mode convenience - use test credentials
       const loginEmail = process.env.NODE_ENV === 'development' ? 
         'test@example.com' : email;
       const loginPassword = process.env.NODE_ENV === 'development' ? 
@@ -43,6 +48,10 @@ export default function LoginPage() {
         setError('Account not found. Please check your email or create a new account.');
       } else if (err.message?.includes('password')) {
         setError('Incorrect password. Please try again or reset your password.');
+      } else if (err.message?.includes('timeout')) {
+        setError('Login request timed out. Please try again later.');
+      } else if (err.message?.includes('Missing Shopify API configuration')) {
+        setError('Server configuration error. Please contact support.');
       } else {
         setError(err.message || 'Login failed. Please check your credentials and try again.');
       }
@@ -73,7 +82,14 @@ export default function LoginPage() {
           >
             {error && (
               <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md text-sm">
-                {error}
+                <p className="mb-2">{error}</p>
+                {error.includes('connection') && (
+                  <p className="text-xs">
+                    <Link href="/account/test" className="underline">
+                      Visit the diagnostic page
+                    </Link> to check API connectivity.
+                  </p>
+                )}
               </div>
             )}
             
